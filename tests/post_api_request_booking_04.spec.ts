@@ -1,23 +1,17 @@
 // Load Playwright module
 const { test, expect } = require('@playwright/test');
+const bookingAPIRequestBody = require('../test-data/post_dynamic_request_body.json');
+import { stringFormat } from "../utils/common";
 
 // Write a test
-test('Create POST api reqeust using static request body', async ({ request }) => {
+test('Create POST api reqeust using dynamic JSON file', async ({ request }) => {
+
+    const dynamicRequestBody = stringFormat(JSON.stringify(bookingAPIRequestBody), "usernameDynamic", "lastnameDynamic", "apple");
 
     // Create POST API request
     const postAPIResponse = await request.post('/booking', {
         // here you can pass headers, request body and parameters as an object
-        data:{
-            "firstname": "userOne",
-            "lastname": "userLastnameOne",
-            "totalprice": 1000,
-            "depositpaid": true,
-            "bookingdates": {
-                "checkin": "2025-06-01",
-                "checkout": "2025-12-01"
-            },
-            "additionalneeds": "super bowls"
-        }
+        data: JSON.parse(dynamicRequestBody)
     })
 
     // Validate status code
@@ -28,8 +22,8 @@ test('Create POST api reqeust using static request body', async ({ request }) =>
     console.log(postAPIResponseBody);
 
     // Validate JSON API response - toHaveProperty()
-    expect(postAPIResponseBody.booking).toHaveProperty("firstname", "userOne");
-    expect(postAPIResponseBody.booking).toHaveProperty("lastname", "userLastnameOne");
+    expect(postAPIResponseBody.booking).toHaveProperty("firstname", "usernameDynamic");
+    expect(postAPIResponseBody.booking).toHaveProperty("lastname", "lastnameDynamic");
 
         // 2nd way to validate data from JSON response - Store in a Variable
         const responseFirstName = postAPIResponseBody.booking.firstname;

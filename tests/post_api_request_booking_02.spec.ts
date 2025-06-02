@@ -1,23 +1,14 @@
 // Load Playwright module
 const { test, expect } = require('@playwright/test');
+const bookingAPIRequestBody = require('../test-data/post_request_body.json');
 
 // Write a test
-test('Create POST api reqeust using static request body', async ({ request }) => {
+test('Create POST api reqeust using static JSON file', async ({ request }) => {
 
     // Create POST API request
     const postAPIResponse = await request.post('/booking', {
         // here you can pass headers, request body and parameters as an object
-        data:{
-            "firstname": "userOne",
-            "lastname": "userLastnameOne",
-            "totalprice": 1000,
-            "depositpaid": true,
-            "bookingdates": {
-                "checkin": "2025-06-01",
-                "checkout": "2025-12-01"
-            },
-            "additionalneeds": "super bowls"
-        }
+        data: bookingAPIRequestBody
     })
 
     // Validate status code

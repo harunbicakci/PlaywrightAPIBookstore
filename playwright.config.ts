@@ -28,6 +28,7 @@ module.exports = defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'https://restful-booker.herokuapp.com',
+    // baseURL: 'https://bookstore.toolsqa.com/swagger/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
