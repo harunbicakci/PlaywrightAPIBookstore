@@ -4,7 +4,7 @@ const baseUrl = 'https://bookstore.toolsqa.com';
 const createUserEndpoint = '/Account/v1/User';
 const url = `${baseUrl}${createUserEndpoint}`;
 
-const userName = 'adminUser098';
+const userName = 'adminUser013';
 const password = 'adminUser@123';
 
 test('Create a new user', async ({ request }) => {
