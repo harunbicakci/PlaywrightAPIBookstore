@@ -33,8 +33,8 @@ export class E2ETest {
   static TEST_DATA = {
     username: 'standard_user',
     password: 'secret_sauce',
-    firstName: 'John',
-    lastName: 'Doe',
+    firstName: 'Aaron',
+    lastName: 'Codes',
     zipCode: '12345',
   };
 
