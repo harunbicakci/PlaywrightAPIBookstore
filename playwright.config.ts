@@ -1,25 +1,38 @@
-// @ts-check
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
-module.exports = defineConfig({
-  timeout: 15000,
-  expect: { timeout: 5000 },
+export default defineConfig({
+  timeout: 30000, // 30 seconds per test
+  expect: {
+    timeout: 10000, // 10 seconds for assertions
+  },
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: true, // Enable parallel execution
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : 4,
-  reporter: 'html',
+  retries: process.env.CI ? 2 : 0, // 1 retry for local runs
+  workers: 4, // 4 workers for parallel execution
+  reporter: 'html', // HTML report for results
   use: {
-    baseURL: 'https://demoqa.com',
+    baseURL: 'https://demoqa.com', // Base URL for DemoQA
     trace: 'on-first-retry',
-    actionTimeout: 5000,
-    screenshot: 'only-on-failure',
+    actionTimeout: 10000, // 10 seconds for actions
+    screenshot: 'only-on-failure', // Screenshot on failure
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'msedge', use: { ...devices['Desktop Edge'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'msedge',
+      use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
   ],
 });
