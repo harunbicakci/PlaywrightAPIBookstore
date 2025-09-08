@@ -9,8 +9,8 @@ export default defineConfig({
   fullyParallel: true, // Enable parallel execution
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0, // 1 retry for local runs
-  workers: 4, // 4 workers for parallel execution
-  reporter: 'html', // HTML report for results
+  workers: 3, // 3 workers for parallel execution, MS Edge is Chromium based
+  reporter: [['html', { noSnippets: false}]], // HTML report for results
   use: {
     baseURL: 'https://demoqa.com', // Base URL for DemoQA
     trace: 'on-first-retry',
@@ -22,10 +22,10 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'msedge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
+    // {
+    //   name: 'msedge',
+    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    // },
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
