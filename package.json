@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0",
-    "luxon": "^3.6.1"
+    "luxon": "^3.6.1",
+    "xlsx": "^0.18.5"
   },
   "directories": {
     "test": "tests"

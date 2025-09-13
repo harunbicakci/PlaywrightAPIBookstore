@@ -1,38 +1,64 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   timeout: 30000, // 30 seconds per test
   expect: {
-    timeout: 10000, // 10 seconds for assertions
+    timeout: 20000, // 20 seconds for assertions
   },
   testDir: './tests',
   fullyParallel: true, // Enable parallel execution
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0, // 1 retry for local runs
-  workers: 3, // 3 workers for parallel execution, MS Edge is Chromium based
-  reporter: [['html', { noSnippets: false}]], // HTML report for results
+  workers: 1, // Single worker is sufficient for API tests
+  reporter: 'html', // Keep HTML report for visibility
   use: {
-    baseURL: 'https://demoqa.com', // Base URL for DemoQA
-    trace: 'on-first-retry',
-    actionTimeout: 10000, // 10 seconds for actions
-    screenshot: 'only-on-failure', // Screenshot on failure
+    // Remove baseURL since it's API-specific and not shared
+    // Remove screenshot and trace as they’re UI-focused
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    // {
-    //   name: 'msedge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-  ],
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+// import { defineConfig, devices } from '@playwright/test';
+
+// export default defineConfig({
+//   timeout: 30000, // 30 seconds per test
+//   expect: {
+//     timeout: 20000, // 20 seconds for assertions
+//   },
+//   testDir: './tests',
+//   fullyParallel: true, // Enable parallel execution
+//   workers: 3, // One per browser (Chromium, Firefox, WebKit)
+//   reporter: 'html', // Generate HTML report
+//   use: {
+//     baseURL: 'https://demoqa.com', // Base URL for DemoQA
+//     trace: 'on-first-retry', // Capture traces on failure
+//     actionTimeout: 20000, // 20 seconds for actions
+//     screenshot: 'only-on-failure', // Capture screenshots on failure
+//   },
+//   projects: [
+//     {
+//       name: 'chromium',
+//       use: { ...devices['Desktop Chrome'] },
+//     },
+//     {
+//       name: 'firefox',
+//       use: { ...devices['Desktop Firefox'] },
+//     },
+//     {
+//       name: 'webkit',
+//       use: { ...devices['Desktop Safari'] },
+//     },
+//   ],
+// });
