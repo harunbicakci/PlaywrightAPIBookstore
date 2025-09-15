@@ -1,32 +1,73 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import * as XLSX from 'xlsx';
+import path from 'path';
 
-// Define interface for Excel data structure
+// Excel Data Type
 interface UserData {
-  ID: number;
-  Name: string;
-  Username: string;
+  FirstName: string;
+  LastName: string;
+  DateOfBirth: string | number;
+  Street: string;
+  PostalCode: string | number;
+  City: string;
+  State: string;
+  Country: string;
+  Phone: string | number;
   Email: string;
-  Gender: string;
-  MobileNo: string; // Updated to remove quotes and space
+  Password: string;
 }
 
-// Read Excel file and convert to JSON
-const workbook = XLSX.readFile('/Users/harunbicakci/PlaywrightAPIBookstore/excel-test-data/test-data.xlsx');
-const sheetName = workbook.SheetNames[0]; // Assuming default sheet
-const excelData: UserData[] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-console.log('Excel Data:', excelData); // Debug log
+// --- POM ---
+class RegistrationPage {
+  readonly page: Page;
 
-test.describe('API Testing with Excel Data', () => {
-  test('Validate user data via API', async ({ request }) => {
-    for (const userData of excelData) {
-      await test.step(`Validate user with ID ${userData.ID}`, async () => {
-        const response = await request.get(`https://jsonplaceholder.typicode.com/users/${userData.ID}`);
-        expect(response.status()).toBe(200); // Expect success
-        const apiUser = await response.json();
-        expect(apiUser.id).toBe(userData.ID); // Validate ID matches
-        console.log(`Validated user ID ${userData.ID}: ${apiUser.name}`);
-      });
-    }
+  constructor(page: Page) {
+    this.page = page;
+  }
+
+  async navigate() {
+    await this.page.goto('https://practicesoftwaretesting.com/auth/register');
+  }
+
+  async fillRegistrationForm(userData: UserData) {
+    await this.page.fill('#first_name', String(userData.FirstName));
+    await this.page.fill('#last_name', String(userData.LastName));
+    await this.page.fill('#dob', String(userData.DateOfBirth));
+    await this.page.fill('#street', String(userData.Street));
+    await this.page.fill('#postal_code', String(userData.PostalCode));
+    await this.page.fill('#city', String(userData.City));
+    await this.page.fill('#state', String(userData.State));
+    await this.page.selectOption('#country', { label: String(userData.Country) });
+    await this.page.fill('#phone', String(userData.Phone));
+    await this.page.fill('#email', String(userData.Email));
+    await this.page.fill('#password', String(userData.Password));
+    await thpage.getByRole('button', { name: 'Register' }).click();  }
+
+  async validateUserData(userData: UserData) {
+    await expect(this.page.locator('#first_name')).toHaveValue(String(userData.FirstName));
+    await expect(this.page.locator('#last_name')).toHaveValue(String(userData.LastName));
+    await expect(this.page.locator('#email')).toHaveValue(String(userData.Email));
+  }
+}
+
+// --- Excel Reader ---
+function getExcelData(): UserData[] {
+  const filePath = path.join(__dirname, '../excel-test-data/test-data.xlsx'); // Excel in same folder
+  const workbook = XLSX.readFile(filePath);
+  const sheetName = workbook.SheetNames[0];
+  return XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+}
+
+// --- Test ---
+test.describe('E2E Registration Test with Excel Data', () => {
+  const excelData = getExcelData();
+
+  test('Register new user and validate', async ({ page }) => {
+    const registrationPage = new RegistrationPage(page);
+    const userData = excelData[0]; // first row only
+
+    await registrationPage.navigate();
+    await registrationPage.fillRegistrationForm(userData);
+    await registrationPage.validateUserData(userData);
   });
 });
