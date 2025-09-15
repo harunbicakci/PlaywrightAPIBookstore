@@ -41,7 +41,8 @@ class RegistrationPage {
     await this.page.fill('#phone', String(userData.Phone));
     await this.page.fill('#email', String(userData.Email));
     await this.page.fill('#password', String(userData.Password));
-    await thpage.getByRole('button', { name: 'Register' }).click();  }
+    await this.page.getByRole('button', { name: 'Register' }).click();  }
+  
 
   async validateUserData(userData: UserData) {
     await expect(this.page.locator('#first_name')).toHaveValue(String(userData.FirstName));
@@ -49,6 +50,7 @@ class RegistrationPage {
     await expect(this.page.locator('#email')).toHaveValue(String(userData.Email));
   }
 }
+
 
 // --- Excel Reader ---
 function getExcelData(): UserData[] {
