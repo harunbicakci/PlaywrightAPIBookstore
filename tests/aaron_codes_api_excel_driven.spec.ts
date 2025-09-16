@@ -54,7 +54,7 @@ class RegistrationPage {
 
 // --- Excel Reader ---
 function getExcelData(): UserData[] {
-  const filePath = path.join(__dirname, '../excel-test-data/test-data.xlsx'); // Excel in same folder
+  const filePath = path.join(__dirname, '../test-data/test-data.xlsx'); // Excel in same folder
   const workbook = XLSX.readFile(filePath);
   const sheetName = workbook.SheetNames[0];
   return XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
