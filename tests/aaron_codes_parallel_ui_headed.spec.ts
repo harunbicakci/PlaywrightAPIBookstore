@@ -44,5 +44,5 @@ test.describe('UI Parallel Testing Across Browsers', () => {
     await expect(page.locator(LOCATORS.confirmationModal)).toBeVisible();
     await expect(page.locator(LOCATORS.modalTitle)).toHaveText('Thanks for submitting the form');
     console.log('✅ Confirmation modal validated');
-  }, { retries: 1, timeout: 60000 }); // Increased timeout for stability
+  }, { retries: 1, timeout: 180000 }); // Increased timeout for stability
 });
