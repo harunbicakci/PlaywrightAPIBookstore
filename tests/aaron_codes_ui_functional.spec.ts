@@ -1,54 +1,117 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, APIRequestContext } from '@playwright/test';
 
-class LoginPage {
-  readonly page: Page;
-  readonly usernameInput;
-  readonly passwordInput;
-  readonly loginButton;
-  readonly message;
+class NotesAPI {
+  readonly request: APIRequestContext;
+  readonly baseURL: string;
 
-  constructor(page: Page) {
-    this.page = page;
-    this.usernameInput = page.locator('input[name="username"]');
-    this.passwordInput = page.locator('input[name="password"]');
-    this.loginButton = page.locator('button[type="submit"]');
-    this.message = page.locator('#flash'); // contains success or error text
+  constructor(request: APIRequestContext) {
+    this.request = request;
+    this.baseURL = 'https://practice.expandtesting.com/notes/api';
   }
 
-  async goto() {
-    await this.page.goto('https://practice.expandtesting.com/login');
+  async healthCheck() {
+    const resp = await this.request.get(`${this.baseURL}/health`);
+    expect(resp.ok()).toBeTruthy();
+    const body = await resp.json();
+    console.log('Health check:', body);
+    expect(body).toHaveProperty('status');
+    return body;
   }
 
-  async login(username: string, password: string) {
-    await this.usernameInput.fill(username);
-    await this.passwordInput.fill(password);
-    await this.loginButton.click();
+  async register(name: string, email: string, password: string) {
+    const resp = await this.request.post(`${this.baseURL}/users/register`, {
+      data: { name, email, password },
+    });
+    expect(resp.status()).toBe(201);
+    const body = await resp.json();
+    console.log('Registered user:', body);
+    return body;
   }
 
-  async getFlashMessageText() {
-    return (await this.message.textContent())?.trim();
+  async login(email: string, password: string) {
+    const resp = await this.request.post(`${this.baseURL}/users/login`, {
+      data: { email, password },
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    console.log('Login response:', body);
+    return body;
+  }
+
+  async createNote(token: string, title: string, description: string, category: string) {
+    const resp = await this.request.post(`${this.baseURL}/notes`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: { title, description, category },
+    });
+    expect(resp.status()).toBe(201);
+    const body = await resp.json();
+    console.log('Created note:', body);
+    return body;
+  }
+
+  async getNote(token: string, noteId: string) {
+    const resp = await this.request.get(`${this.baseURL}/notes/${noteId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    console.log('Fetched note:', body);
+    return body;
+  }
+
+  async updateNote(token: string, noteId: string, title: string, description: string, category: string) {
+    const resp = await this.request.put(`${this.baseURL}/notes/${noteId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: { title, description, category },
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    console.log('Updated note:', body);
+    return body;
+  }
+
+  async deleteNote(token: string, noteId: string) {
+    const resp = await this.request.delete(`${this.baseURL}/notes/${noteId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    console.log('Deleted note:', body);
+    return body;
   }
 }
 
-// === Tests ===
-test.describe('Login tests on ExpandTesting practice site', () => {
-  test('successful login shows success message', async ({ page }) => {
-    const login = new LoginPage(page);
+test('Notes API E2E flow › health → register → login → create → get → update → delete', async ({ request }) => {
+  const api = new NotesAPI(request);
 
-    await login.goto();
-    await login.login('practice', 'SuperSecretPassword!');
+  // Health check
+  await api.healthCheck();
 
-    const msg = await login.getFlashMessageText();
-    expect(msg).toContain('You logged into a secure area');
-  });
+  // Register a new user
+  const email = `qatester_${Date.now()}@example.com`;
+  const password = 'Password123!';
+  await api.register('QA Tester', email, password);
 
-  test('invalid credentials show error message', async ({ page }) => {
-    const login = new LoginPage(page);
+  // Login
+  const loginRes = await api.login(email, password);
+  const token = loginRes.data.token;
 
-    await login.goto();
-    await login.login('wronguser', 'wrongpass');
+  // Create note
+  const noteRes = await api.createNote(token, 'First Note', 'This is my first note', 'General');
+  const noteId = noteRes.data.id;
 
-    const msg = await login.getFlashMessageText();
-    expect(msg).toContain('Your username is invalid');
-  });
+  // Get note
+  await api.getNote(token, noteId);
+
+  // Update note
+  await api.updateNote(token, noteId, 'Updated Note', 'This note was updated', 'Work');
+
+  // Delete note
+  await api.deleteNote(token, noteId);
 });
